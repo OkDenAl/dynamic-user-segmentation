@@ -23,6 +23,7 @@ type PgxPool interface {
 	QueryRow(ctx context.Context, sql string, args ...any) pgx.Row
 	Begin(ctx context.Context) (pgx.Tx, error)
 	BeginTx(ctx context.Context, txOptions pgx.TxOptions) (pgx.Tx, error)
+	SendBatch(ctx context.Context, b *pgx.Batch) pgx.BatchResults
 }
 
 func New(dsn string, maxPoolConns int, log logging.Logger) (*pgxpool.Pool, error) {
@@ -46,9 +47,9 @@ func New(dsn string, maxPoolConns int, log logging.Logger) (*pgxpool.Pool, error
 		return nil, fmt.Errorf("error while connect to postgres: %w", err)
 	}
 
-	err = runMigrations(dsn, log)
-	if err != nil {
-		return nil, fmt.Errorf("error while migrations: %w", err)
-	}
+	//err = runMigrations(dsn, log)
+	//if err != nil {
+	//	return nil, fmt.Errorf("error while migrations: %w", err)
+	//}
 	return pool, nil
 }
