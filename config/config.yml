@@ -1,0 +1,5 @@
+db:
+  dsn: postgres://raiden:raiden@pg:5432/segmentation
+
+server:
+  port: 8080
