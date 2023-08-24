@@ -46,10 +46,5 @@ func New(dsn string, maxPoolConns int, log logging.Logger) (*pgxpool.Pool, error
 	if err != nil {
 		return nil, fmt.Errorf("error while connect to postgres: %w", err)
 	}
-
-	//err = runMigrations(dsn, log)
-	//if err != nil {
-	//	return nil, fmt.Errorf("error while migrations: %w", err)
-	//}
 	return pool, nil
 }

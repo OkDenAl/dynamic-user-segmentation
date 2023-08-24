@@ -5,7 +5,9 @@ import (
 	"dynamic-user-segmentation/config"
 	"dynamic-user-segmentation/internal/ports/httpgin"
 	segmentRepo "dynamic-user-segmentation/internal/repository/segment"
+	usersSegmentRepo "dynamic-user-segmentation/internal/repository/user_segment"
 	segmentService "dynamic-user-segmentation/internal/service/segment"
+	"dynamic-user-segmentation/internal/service/user_segment"
 	"dynamic-user-segmentation/pkg/logging"
 	"dynamic-user-segmentation/pkg/postgres"
 	"errors"
@@ -23,6 +25,7 @@ func main() {
 	if err != nil {
 		panic(fmt.Errorf("unable to load config: %w", err))
 	}
+
 	log, err := logging.New(cfg.Logger)
 	if err != nil {
 		panic(fmt.Errorf("unable to configure logger: %w", err))
@@ -36,12 +39,15 @@ func main() {
 	defer pgPool.Close()
 	log.Info("successfully connected")
 
-	log.Info("Connecting to server...")
+	uSegRepo := usersSegmentRepo.New(pgPool)
+
+	log.Info("configure server...")
 	server := httpgin.NewServer(
 		":"+cfg.Server.Port,
-		segmentService.New(segmentRepo.New(pgPool)),
+		segmentService.New(segmentRepo.New(pgPool), uSegRepo),
+		user_segment.New(uSegRepo),
 		log)
-	log.Info("successfully connected")
+	log.Info("successfully configured")
 
 	g, ctx := errgroup.WithContext(context.Background())
 	gracefulShutdown(ctx, g)
@@ -87,7 +93,7 @@ func gracefulShutdown(ctx context.Context, g *errgroup.Group) {
 	g.Go(func() error {
 		select {
 		case s := <-signals:
-			return fmt.Errorf("captured signal %w\n", s)
+			return fmt.Errorf("captured signal %s\n", s)
 		case <-ctx.Done():
 			return nil
 		}

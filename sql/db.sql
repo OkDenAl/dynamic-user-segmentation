@@ -9,6 +9,8 @@ CREATE TABLE IF NOT EXISTS users (
     password   varchar(255) not null
 );
 
+INSERT INTO users (username, password) VALUES ('test','password');
+
 CREATE TABLE IF NOT EXISTS users_segments (
     user_id int not null,
     segment_name varchar(255) not null,
@@ -17,3 +19,7 @@ CREATE TABLE IF NOT EXISTS users_segments (
 );
 
 CREATE UNIQUE INDEX users_segment_index on users_segments (user_id, segment_name);
+
+DROP TABLE IF EXISTS segments;
+DROP TABLE IF EXISTS users;
+DROP TABLE IF EXISTS users_segments;

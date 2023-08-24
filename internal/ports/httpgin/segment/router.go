@@ -6,7 +6,6 @@ import (
 )
 
 func SetRouter(api *gin.RouterGroup, segmentService segment.Service) {
-	//api.GET("/balance/:user_id", GetBalance(balanceService))
 	api.POST("/segment/create", CreateSegment(segmentService))
 	api.DELETE("/segment/delete", DeleteSegment(segmentService))
 }
