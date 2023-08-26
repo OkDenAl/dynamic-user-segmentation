@@ -1,0 +1,286 @@
+openapi: '3.0.2'
+info:
+  title: Dynamic user segmentation API
+  version: '0.1.0'
+  contact:
+    name: Denis Okutin
+    url: https://t.me/raiden4545
+
+
+servers:
+  - url: http://localhost:8080
+tags:
+  - name: Segments
+  - name: User`s Segments
+  - name: Operations
+paths:
+  /api/v1/segment/create:
+    post:
+      summary: Creates new segment
+      description: >
+        You must spec the field "name" only.
+        The field "percent_of_users" is optional. If you spec this field
+        the new segment will be add to random n% of all users.
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SegmentCreatingRequest'
+
+      tags:
+        - Segments
+      responses:
+        '201':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+        '400':
+          description: Bad request (invalid segment name/segment already exists)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        default:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/segment/delete:
+    post:
+      summary: Deletes the segment by its name
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SegmentDeletingRequest'
+
+      tags:
+        - Segments
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+        '400':
+          description: Bad request (invalid segment name)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        default:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/user_segment/{user_id}:
+    get:
+      summary: Get user`s segments by user id
+      parameters:
+        - in: path
+          name: user_id
+          schema:
+            type: integer
+          required: true
+          description: Numeric ID of the user to get
+      tags:
+        - User`s Segments
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - properties:
+                      data:
+                        type: array
+                        items:
+                          description: segments
+                          type: string
+                          minItems: 0
+                      error:
+                        type: string
+        '400':
+          description: Bad Request (invalid user id)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        default:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/v1/user_segment/operation:
+    post:
+      summary: Makes operation with spec user and spec segments
+      description: Accepts a list of names of segments to be added to the user, a list of names
+        of segments to be deleted from the user, user id. The field "expires_at" is optional.
+        If you specify it, you will set the TTL (the time of automatic removal of the user from the segment)
+        to add the user to the segment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserSegmentOperationRequest'
+
+      tags:
+        - User`s Segments
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+        '400':
+          description: Bad request (invalid user id/data already exists/unknown data)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        default:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/v1/operations/report:
+    get:
+      summary: Get operations history csv report link
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OperationsHistoryRequest'
+
+      tags:
+        - Operations
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - properties:
+                      data:
+                        type: string
+                      error:
+                        type: string
+        default:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  schemas:
+    TTL:
+      type: object
+      properties:
+        years:
+          type: integer
+        months:
+          type: integer
+        days:
+          type: integer
+        hours:
+          type: integer
+        minutes:
+          type: integer
+        seconds:
+          type: integer
+
+    Operation:
+      type: object
+      properties:
+        id:
+          type: integer
+        user_id:
+          type: integer
+        segment_name:
+          type: string
+        operation_type:
+          type: string
+        created_at:
+          type: string
+
+    SegmentCreatingRequest:
+      required:
+        - name
+      type: object
+      properties:
+        name:
+          type: string
+        percent_of_users:
+          type: number
+
+    SegmentDeletingRequest:
+      required:
+        - name
+      type: object
+      properties:
+        name:
+          type: string
+
+    UserSegmentOperationRequest:
+      required:
+        - user_id
+        - segments_to_add
+        - segments_to_delete
+      type: object
+      properties:
+        user_id:
+          type: integer
+        segments_to_add:
+          type: string
+        segments_to_delete:
+          type: string
+        expires_at:
+          $ref: '#/components/schemas/TTL'
+
+    OperationsHistoryRequest:
+      type: object
+      required:
+        - year
+        - month
+      properties:
+        year:
+          type: integer
+        month:
+          type: integer
+
+
+    ErrorResponse:
+      type: object
+      properties:
+        data:
+          type: object
+        error:
+          type: string
+
+    SuccessResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          default: "success"

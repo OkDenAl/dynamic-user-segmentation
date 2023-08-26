@@ -23,3 +23,11 @@ services:
       - ./logs:/app/logs
     ports:
       - "8080:8080"
+  docs:
+    image: nginx
+    container_name: docs
+    volumes:
+      - ./docs/index.html:/usr/share/nginx/html/index.html
+      - ./docs/openapi.yml:/usr/share/nginx/html/openapi.yml
+    ports:
+      - "8081:80"

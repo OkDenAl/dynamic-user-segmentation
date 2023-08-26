@@ -10,7 +10,7 @@ import (
 
 func CreateSegment(segmentService segment.Service) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		req := segmentOperationRequest{}
+		req := segmentCreatingRequest{}
 		err := c.BindJSON(&req)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, responses.Error(err))
@@ -35,7 +35,7 @@ func CreateSegment(segmentService segment.Service) gin.HandlerFunc {
 
 func DeleteSegment(segmentService segment.Service) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		req := segmentOperationRequest{}
+		req := segmentDeletingRequest{}
 		err := c.BindJSON(&req)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, responses.Error(err))
