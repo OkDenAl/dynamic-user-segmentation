@@ -5,7 +5,7 @@ volumes:
 
 services:
   pg:
-    image: postgres
+    build: ./postgresql
     container_name: pg
     restart: always
     volumes:
@@ -14,10 +14,10 @@ services:
       - "5432:5432"
     env_file:
       - .env
-  converter:
+  server:
     depends_on:
       - pg
-    container_name: service
+    container_name: server
     build: .
     volumes:
       - ./logs:/app/logs

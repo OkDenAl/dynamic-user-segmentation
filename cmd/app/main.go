@@ -7,7 +7,7 @@ import (
 	segmentRepo "dynamic-user-segmentation/internal/repository/segment"
 	usersSegmentRepo "dynamic-user-segmentation/internal/repository/user_segment"
 	segmentService "dynamic-user-segmentation/internal/service/segment"
-	"dynamic-user-segmentation/internal/service/user_segment"
+	userSegmentService "dynamic-user-segmentation/internal/service/user_segment"
 	"dynamic-user-segmentation/pkg/logging"
 	"dynamic-user-segmentation/pkg/postgres"
 	"errors"
@@ -39,13 +39,11 @@ func main() {
 	defer pgPool.Close()
 	log.Info("successfully connected")
 
-	uSegRepo := usersSegmentRepo.New(pgPool)
-
 	log.Info("configure server...")
 	server := httpgin.NewServer(
 		":"+cfg.Server.Port,
-		segmentService.New(segmentRepo.New(pgPool), uSegRepo),
-		user_segment.New(uSegRepo),
+		segmentService.New(segmentRepo.New(pgPool)),
+		userSegmentService.New(usersSegmentRepo.New(pgPool)),
 		log)
 	log.Info("successfully configured")
 

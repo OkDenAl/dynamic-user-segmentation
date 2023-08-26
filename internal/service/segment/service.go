@@ -3,7 +3,6 @@ package segment
 import (
 	"context"
 	"dynamic-user-segmentation/internal/repository/segment"
-	"dynamic-user-segmentation/internal/repository/user_segment"
 	"errors"
 )
 
@@ -17,12 +16,11 @@ type Service interface {
 }
 
 type service struct {
-	segRepo     segment.Repository
-	userSegRepo user_segment.Repository
+	segRepo segment.Repository
 }
 
-func New(segRepo segment.Repository, userSegRepo user_segment.Repository) Service {
-	return &service{segRepo: segRepo, userSegRepo: userSegRepo}
+func New(segRepo segment.Repository) Service {
+	return &service{segRepo: segRepo}
 }
 
 func (s *service) CreateSegment(ctx context.Context, name string) error {
@@ -35,10 +33,6 @@ func (s *service) CreateSegment(ctx context.Context, name string) error {
 func (s *service) DeleteSegment(ctx context.Context, name string) error {
 	if len(name) == 0 {
 		return ErrInvalidName
-	}
-	err := s.userSegRepo.DeleteSpecSegmentFromUsers(ctx, name)
-	if err != nil {
-		return err
 	}
 	return s.segRepo.Delete(ctx, name)
 }

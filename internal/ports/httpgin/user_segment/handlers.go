@@ -17,7 +17,7 @@ func MakeOperationWithUsersSegment(userSegmentService user_segment.Service) gin.
 			return
 		}
 
-		err = userSegmentService.AddSegmentsToUser(c, req.UserId, req.SegmentsToAdd)
+		err = userSegmentService.AddSegmentsToUser(c, req.UserId, req.SegmentsToAdd, req.ExpiresAt)
 		if err != nil {
 			switch err {
 			case user_segment.ErrInvalidUserId:
