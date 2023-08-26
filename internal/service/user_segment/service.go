@@ -33,7 +33,7 @@ func (s *service) AddSegmentsToUser(ctx context.Context, userId int64, segments 
 	if len(segments) == 0 {
 		return nil
 	}
-	return s.repo.Create(ctx, userId, strings.Split(segments, ","), ttl)
+	return s.repo.CreateMultSegsForOneUser(ctx, userId, strings.Split(segments, ","), ttl)
 }
 
 func (s *service) DeleteSegmentsFromUser(ctx context.Context, userId int64, segments string) error {

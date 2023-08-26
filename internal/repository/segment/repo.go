@@ -5,6 +5,7 @@ import (
 	"dynamic-user-segmentation/internal/repository"
 	"dynamic-user-segmentation/pkg/logging"
 	"dynamic-user-segmentation/pkg/postgres"
+	"fmt"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -26,7 +27,7 @@ func (r *repo) Create(ctx context.Context, name string) error {
 	q := `INSERT INTO segments (name) VALUES ($1)`
 	_, err := r.conn.Exec(ctx, q, name)
 	if err != nil {
-		r.l.Errorf("segment.Create - r.conn.Exec %w", err)
+		r.l.Error(fmt.Errorf("segment.Create - r.conn.Exec - %w", err))
 		return repository.SqlErrorWrapper(err)
 	}
 	return nil
@@ -36,7 +37,7 @@ func (r *repo) Delete(ctx context.Context, name string) error {
 	q := `DELETE FROM segments WHERE name=$1`
 	_, err := r.conn.Exec(ctx, q, name)
 	if err != nil {
-		r.l.Errorf("segment.Delete - r.conn.Exec %w", err)
+		r.l.Error(fmt.Errorf("segment.Delete - r.conn.Exec - %w", err))
 		return repository.SqlErrorWrapper(err)
 	}
 	return nil

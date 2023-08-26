@@ -16,7 +16,7 @@ func CreateSegment(segmentService segment.Service) gin.HandlerFunc {
 			c.JSON(http.StatusBadRequest, responses.Error(err))
 			return
 		}
-		err = segmentService.CreateSegment(c, req.Name)
+		err = segmentService.CreateSegment(c, req.Name, req.PercentOfUsers)
 		if err != nil {
 			switch err {
 			case segment.ErrInvalidName:

@@ -12,7 +12,8 @@ import (
 )
 
 type Repository interface {
-	Create(ctx context.Context, userId int64, segments []string, ttl entity.TTL) error
+	CreateMultSegsForOneUser(ctx context.Context, userId int64, segments []string, ttl entity.TTL) error
+	CreateOneSegForMultUsers(ctx context.Context, userIds []int64, segment string) error
 	DeleteSegmentsFromSpecUser(ctx context.Context, userId int64, segments []string) error
 	GetAllUserSegments(ctx context.Context, userId int64) ([]string, error)
 }
@@ -26,7 +27,7 @@ func New(conn *pgxpool.Pool, l logging.Logger) Repository {
 	return &repo{conn: conn, l: l}
 }
 
-func (r *repo) Create(ctx context.Context, userId int64, segments []string, ttl entity.TTL) error {
+func (r *repo) CreateMultSegsForOneUser(ctx context.Context, userId int64, segments []string, ttl entity.TTL) error {
 	var (
 		batch = &pgx.Batch{}
 		q     string
@@ -42,7 +43,21 @@ func (r *repo) Create(ctx context.Context, userId int64, segments []string, ttl 
 	}
 	err := r.conn.SendBatch(ctx, batch).Close()
 	if err != nil {
-		r.l.Errorf("user_segment.Create - r.conn.SendBatch.Close %w", err)
+		r.l.Error(fmt.Errorf("user_segment.CreateMultSegsForOneUser - r.conn.SendBatch.Close - %w", err))
+		return repository.SqlErrorWrapper(err)
+	}
+	return nil
+}
+
+func (r *repo) CreateOneSegForMultUsers(ctx context.Context, userIds []int64, segment string) error {
+	batch := &pgx.Batch{}
+	q := `INSERT INTO users_segments (user_id,segment_name) VALUES ($1,$2)`
+	for _, userId := range userIds {
+		batch.Queue(q, userId, segment)
+	}
+	err := r.conn.SendBatch(ctx, batch).Close()
+	if err != nil {
+		r.l.Error(fmt.Errorf("user_segment.CreateOneSegForMultUsers - r.conn.SendBatch.Close - %w", err))
 		return repository.SqlErrorWrapper(err)
 	}
 	return nil
@@ -56,7 +71,7 @@ func (r *repo) DeleteSegmentsFromSpecUser(ctx context.Context, userId int64, seg
 	}
 	err := r.conn.SendBatch(ctx, batch).Close()
 	if err != nil {
-		r.l.Errorf("user_segment.DeleteSegmentsFromSpecUser - r.conn.SendBatch.Close %w", err)
+		r.l.Error(fmt.Errorf("user_segment.DeleteSegmentsFromSpecUser - r.conn.SendBatch.Close - %w", err))
 		return repository.SqlErrorWrapper(err)
 	}
 	return nil
@@ -66,7 +81,7 @@ func (r *repo) GetAllUserSegments(ctx context.Context, userId int64) ([]string, 
 	q := `SELECT segment_name FROM users_segments WHERE user_id=$1 AND(expires_at > now() OR expires_at IS NULL)`
 	rows, err := r.conn.Query(ctx, q, userId)
 	if err != nil {
-		r.l.Errorf("user_segment.GetAllUserSegments - r.conn.Query %w", err)
+		r.l.Error(fmt.Errorf("user_segment.GetAllUserSegments - r.conn.Query - %w", err))
 		return nil, repository.SqlErrorWrapper(err)
 	}
 	defer rows.Close()
@@ -75,7 +90,7 @@ func (r *repo) GetAllUserSegments(ctx context.Context, userId int64) ([]string, 
 		var curSegment string
 		err = rows.Scan(&curSegment)
 		if err != nil {
-			r.l.Errorf("user_segment.GetAllUserSegments - rows.Scan %w", err)
+			r.l.Error(fmt.Errorf("user_segment.GetAllUserSegments - rows.Scan - %w", err))
 			return nil, repository.SqlErrorWrapper(err)
 		}
 		usersSegments = append(usersSegments, curSegment)
