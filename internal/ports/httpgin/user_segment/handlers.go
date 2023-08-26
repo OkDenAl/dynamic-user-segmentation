@@ -2,6 +2,7 @@ package user_segment
 
 import (
 	"dynamic-user-segmentation/internal/ports/httpgin/responses"
+	"dynamic-user-segmentation/internal/repository"
 	"dynamic-user-segmentation/internal/service/user_segment"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -20,6 +21,10 @@ func MakeOperationWithUsersSegment(userSegmentService user_segment.Service) gin.
 		err = userSegmentService.AddSegmentsToUser(c, req.UserId, req.SegmentsToAdd, req.ExpiresAt)
 		if err != nil {
 			switch err {
+			case repository.ErrAlreadyExists:
+				fallthrough
+			case repository.ErrUnknownData:
+				fallthrough
 			case user_segment.ErrInvalidUserId:
 				c.JSON(http.StatusBadRequest, responses.Error(err))
 				return

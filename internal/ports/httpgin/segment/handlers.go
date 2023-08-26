@@ -2,7 +2,7 @@ package segment
 
 import (
 	"dynamic-user-segmentation/internal/ports/httpgin/responses"
-	repo "dynamic-user-segmentation/internal/repository/segment"
+	"dynamic-user-segmentation/internal/repository"
 	"dynamic-user-segmentation/internal/service/segment"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -21,7 +21,7 @@ func CreateSegment(segmentService segment.Service) gin.HandlerFunc {
 			switch err {
 			case segment.ErrInvalidName:
 				fallthrough
-			case repo.ErrAlreadyExists:
+			case repository.ErrAlreadyExists:
 				c.JSON(http.StatusBadRequest, responses.Error(err))
 				return
 			default:

@@ -2,15 +2,10 @@ package segment
 
 import (
 	"context"
+	"dynamic-user-segmentation/internal/repository"
+	"dynamic-user-segmentation/pkg/logging"
 	"dynamic-user-segmentation/pkg/postgres"
-	"errors"
-	"fmt"
-	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
-)
-
-var (
-	ErrAlreadyExists = errors.New("segment with this name already exists")
 )
 
 type Repository interface {
@@ -20,24 +15,19 @@ type Repository interface {
 
 type repo struct {
 	conn postgres.PgxPool
+	l    logging.Logger
 }
 
-func New(conn *pgxpool.Pool) Repository {
-	return &repo{conn: conn}
+func New(conn *pgxpool.Pool, l logging.Logger) Repository {
+	return &repo{conn: conn, l: l}
 }
 
 func (r *repo) Create(ctx context.Context, name string) error {
 	q := `INSERT INTO segments (name) VALUES ($1)`
 	_, err := r.conn.Exec(ctx, q, name)
 	if err != nil {
-		if pgError := err.(*pgconn.PgError); errors.Is(err, pgError) {
-			switch pgError.Code {
-			case "23505":
-				return ErrAlreadyExists
-			default:
-				return fmt.Errorf("r.conn.Exec - %w", err)
-			}
-		}
+		r.l.Errorf("segment.Create - r.conn.Exec %w", err)
+		return repository.SqlErrorWrapper(err)
 	}
 	return nil
 }
@@ -46,7 +36,8 @@ func (r *repo) Delete(ctx context.Context, name string) error {
 	q := `DELETE FROM segments WHERE name=$1`
 	_, err := r.conn.Exec(ctx, q, name)
 	if err != nil {
-		return fmt.Errorf("r.conn.Exec - %w", err)
+		r.l.Errorf("segment.Delete - r.conn.Exec %w", err)
+		return repository.SqlErrorWrapper(err)
 	}
 	return nil
 }

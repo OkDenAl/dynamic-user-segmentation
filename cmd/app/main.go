@@ -42,8 +42,8 @@ func main() {
 	log.Info("configure server...")
 	server := httpgin.NewServer(
 		":"+cfg.Server.Port,
-		segmentService.New(segmentRepo.New(pgPool)),
-		userSegmentService.New(usersSegmentRepo.New(pgPool)),
+		segmentService.New(segmentRepo.New(pgPool, log)),
+		userSegmentService.New(usersSegmentRepo.New(pgPool, log)),
 		log)
 	log.Info("successfully configured")
 
