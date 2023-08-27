@@ -109,7 +109,7 @@ paths:
                         type: array
                         items:
                           description: segments
-                          type: string
+                          $ref: '#/components/schemas/Segment'
                           minItems: 0
                       error:
                         type: string
@@ -194,6 +194,11 @@ paths:
 
 components:
   schemas:
+    Segment:
+      type: object
+      properties:
+        name:
+          type: string
     TTL:
       type: object
       properties:

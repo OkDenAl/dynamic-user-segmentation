@@ -6,6 +6,6 @@ import (
 )
 
 func SetRouter(api *gin.RouterGroup, segmentService segment.Service) {
-	api.POST("/segment/create", CreateSegment(segmentService))
-	api.DELETE("/segment/delete", DeleteSegment(segmentService))
+	api.POST("/segment/create", createSegment(segmentService))
+	api.DELETE("/segment/delete", deleteSegment(segmentService))
 }

@@ -2,6 +2,7 @@ package user_segment
 
 import (
 	"context"
+	"dynamic-user-segmentation/internal/entity"
 	"dynamic-user-segmentation/pkg/logging"
 	"errors"
 	"github.com/pashagolub/pgxmock/v2"
@@ -21,7 +22,7 @@ func TestRepository_GetAllUserSegments(t *testing.T) {
 		name         string
 		args         args
 		mockBehavior MockBehavior
-		wantRes      []string
+		wantRes      []entity.Segment
 		wantErr      bool
 	}{
 		{
@@ -33,7 +34,7 @@ func TestRepository_GetAllUserSegments(t *testing.T) {
 				m.ExpectQuery("SELECT segment_name").
 					WithArgs(args.userId).
 					WillReturnRows(rows)
-			}, wantRes: []string{"test1", "test2"}, wantErr: false,
+			}, wantRes: []entity.Segment{{Name: "test1"}, {Name: "test2"}}, wantErr: false,
 		},
 		{
 			name: "Unexpected error", args: args{ctx: context.Background(), userId: 1},

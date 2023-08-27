@@ -4,6 +4,7 @@ import (
 	"context"
 	"dynamic-user-segmentation/internal/entity"
 	"dynamic-user-segmentation/internal/repository/user_segment"
+	"dynamic-user-segmentation/internal/service/segment"
 	"errors"
 	"strings"
 )
@@ -17,7 +18,7 @@ var (
 type Service interface {
 	AddSegmentsToUser(ctx context.Context, userId int64, segments string, ttl entity.TTL) error
 	DeleteSegmentsFromUser(ctx context.Context, userId int64, segments string) error
-	GetAllUserSegments(ctx context.Context, userId int64) ([]string, error)
+	GetAllUserSegments(ctx context.Context, userId int64) ([]entity.Segment, error)
 }
 
 type service struct {
@@ -35,7 +36,15 @@ func (s *service) AddSegmentsToUser(ctx context.Context, userId int64, segments 
 	if len(segments) == 0 {
 		return nil
 	}
-	return s.repo.CreateMultSegsForOneUser(ctx, userId, strings.Split(segments, ","), ttl)
+	splitted := strings.Split(segments, ",")
+	segmentsArr := make([]entity.Segment, len(splitted))
+	for i, segName := range splitted {
+		segmentsArr[i] = entity.Segment{Name: segName}
+		if !segmentsArr[i].IsValid() {
+			return segment.ErrInvalidSegment
+		}
+	}
+	return s.repo.CreateMultSegsForOneUser(ctx, userId, segmentsArr, ttl)
 }
 
 func (s *service) DeleteSegmentsFromUser(ctx context.Context, userId int64, segments string) error {
@@ -45,10 +54,18 @@ func (s *service) DeleteSegmentsFromUser(ctx context.Context, userId int64, segm
 	if len(segments) == 0 {
 		return nil
 	}
-	return s.repo.DeleteSegmentsFromSpecUser(ctx, userId, strings.Split(segments, ","))
+	splitted := strings.Split(segments, ",")
+	segmentsArr := make([]entity.Segment, len(splitted))
+	for i, segName := range splitted {
+		segmentsArr[i] = entity.Segment{Name: segName}
+		if !segmentsArr[i].IsValid() {
+			return segment.ErrInvalidSegment
+		}
+	}
+	return s.repo.DeleteSegmentsFromSpecUser(ctx, userId, segmentsArr)
 }
 
-func (s *service) GetAllUserSegments(ctx context.Context, userId int64) ([]string, error) {
+func (s *service) GetAllUserSegments(ctx context.Context, userId int64) ([]entity.Segment, error) {
 	if userId < 0 {
 		return nil, ErrInvalidUserId
 	}

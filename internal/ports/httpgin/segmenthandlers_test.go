@@ -3,7 +3,6 @@ package httpgin
 import (
 	"bytes"
 	"dynamic-user-segmentation/internal/mocks/service/segmentserv_mocks"
-	usersegmentserv_mocks "dynamic-user-segmentation/internal/mocks/service/usersegmentserv"
 	"dynamic-user-segmentation/internal/repository"
 	"dynamic-user-segmentation/internal/service/segment"
 	"dynamic-user-segmentation/pkg/logging"
@@ -35,7 +34,7 @@ type SegmentApiTestSuite struct {
 
 func (suite *SegmentApiTestSuite) SetupTest() {
 	suite.segmentService = &segmentserv_mocks.Service{}
-	server := NewServer(":18080", suite.segmentService, &usersegmentserv_mocks.Service{}, logging.NewForMocks())
+	server := NewServer(":18080", suite.segmentService, nil, nil, logging.NewForMocks())
 	testServer := httptest.NewServer(server.Handler)
 	suite.client = testServer.Client()
 	suite.baseURL = testServer.URL
@@ -63,7 +62,7 @@ func (suite *SegmentApiTestSuite) TestCreateSegment_ErrAlreadyExists() {
 }
 
 func (suite *SegmentApiTestSuite) TestCreateSegment_ErrInvalidName() {
-	errCreateSuite(suite, segment.ErrInvalidName, http.StatusBadRequest)
+	errCreateSuite(suite, segment.ErrInvalidSegment, http.StatusBadRequest)
 }
 
 func (suite *SegmentApiTestSuite) TestCreateSegment_ErrInvalidPercentData() {
@@ -90,7 +89,7 @@ func (suite *SegmentApiTestSuite) TestDeleteSegment_OK() {
 }
 
 func (suite *SegmentApiTestSuite) TestDeleteSegment_ErrInvalidName() {
-	errDeleteSuite(suite, segment.ErrInvalidName, http.StatusBadRequest)
+	errDeleteSuite(suite, segment.ErrInvalidSegment, http.StatusBadRequest)
 }
 
 func (suite *SegmentApiTestSuite) TestDeleteSegment_UnexpectedError() {

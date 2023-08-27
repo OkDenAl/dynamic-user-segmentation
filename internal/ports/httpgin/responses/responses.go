@@ -15,6 +15,12 @@ func Ok() *gin.H {
 	}
 }
 
+func Link(link string) *gin.H {
+	return &gin.H{
+		"link": link,
+	}
+}
+
 func Data(data any) *gin.H {
 	return &gin.H{
 		"data":  data,

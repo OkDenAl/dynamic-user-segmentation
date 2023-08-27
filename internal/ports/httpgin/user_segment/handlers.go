@@ -9,7 +9,7 @@ import (
 	"strconv"
 )
 
-func MakeOperationWithUsersSegment(userSegmentService user_segment.Service) gin.HandlerFunc {
+func makeOperationWithUsersSegment(userSegmentService user_segment.Service) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		req := userSegmentOperationRequest{}
 		err := c.BindJSON(&req)
@@ -43,7 +43,7 @@ func MakeOperationWithUsersSegment(userSegmentService user_segment.Service) gin.
 	}
 }
 
-func GetAllSegmentsOfUser(userSegmentService user_segment.Service) gin.HandlerFunc {
+func getAllSegmentsOfUser(userSegmentService user_segment.Service) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		userId, _ := strconv.Atoi(c.Param("user_id"))
 		segments, err := userSegmentService.GetAllUserSegments(c, int64(userId))

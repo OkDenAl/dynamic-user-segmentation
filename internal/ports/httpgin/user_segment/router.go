@@ -6,6 +6,6 @@ import (
 )
 
 func SetRouter(api *gin.RouterGroup, userSegmentService user_segment.Service) {
-	api.GET("/user_segment/:user_id", GetAllSegmentsOfUser(userSegmentService))
-	api.POST("/user_segment/operation", MakeOperationWithUsersSegment(userSegmentService))
+	api.GET("/user_segment/:user_id", getAllSegmentsOfUser(userSegmentService))
+	api.POST("/user_segment/operation", makeOperationWithUsersSegment(userSegmentService))
 }

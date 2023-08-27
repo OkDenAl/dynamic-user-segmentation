@@ -4,9 +4,11 @@ import (
 	"context"
 	"dynamic-user-segmentation/config"
 	"dynamic-user-segmentation/internal/ports/httpgin"
+	operationRepo "dynamic-user-segmentation/internal/repository/operation"
 	segmentRepo "dynamic-user-segmentation/internal/repository/segment"
 	userRepo "dynamic-user-segmentation/internal/repository/user"
 	usersSegmentRepo "dynamic-user-segmentation/internal/repository/user_segment"
+	operationService "dynamic-user-segmentation/internal/service/operation"
 	segmentService "dynamic-user-segmentation/internal/service/segment"
 	userSegmentService "dynamic-user-segmentation/internal/service/user_segment"
 	"dynamic-user-segmentation/pkg/logging"
@@ -44,6 +46,7 @@ func main() {
 	uSegRepo := usersSegmentRepo.New(pgPool, log)
 	segRepo := segmentRepo.New(pgPool, log)
 	uRepo := userRepo.New(pgPool, log)
+	operRepo := operationRepo.New(pgPool, log)
 	log.Info("successfully configured")
 
 	log.Info("configure server...")
@@ -51,6 +54,7 @@ func main() {
 		":"+cfg.Server.Port,
 		segmentService.New(segRepo, uRepo, uSegRepo),
 		userSegmentService.New(uSegRepo),
+		operationService.New(operRepo),
 		log)
 	log.Info("successfully configured")
 

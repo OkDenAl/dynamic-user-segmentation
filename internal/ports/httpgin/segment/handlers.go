@@ -8,7 +8,7 @@ import (
 	"net/http"
 )
 
-func CreateSegment(segmentService segment.Service) gin.HandlerFunc {
+func createSegment(segmentService segment.Service) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		req := segmentCreatingRequest{}
 		err := c.BindJSON(&req)
@@ -21,7 +21,7 @@ func CreateSegment(segmentService segment.Service) gin.HandlerFunc {
 			switch err {
 			case segment.ErrInvalidPercentData:
 				fallthrough
-			case segment.ErrInvalidName:
+			case segment.ErrInvalidSegment:
 				fallthrough
 			case repository.ErrAlreadyExists:
 				c.JSON(http.StatusBadRequest, responses.Error(err))
@@ -35,7 +35,7 @@ func CreateSegment(segmentService segment.Service) gin.HandlerFunc {
 	}
 }
 
-func DeleteSegment(segmentService segment.Service) gin.HandlerFunc {
+func deleteSegment(segmentService segment.Service) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		req := segmentDeletingRequest{}
 		err := c.BindJSON(&req)
@@ -46,7 +46,7 @@ func DeleteSegment(segmentService segment.Service) gin.HandlerFunc {
 		err = segmentService.DeleteSegment(c, req.Name)
 		if err != nil {
 			switch err {
-			case segment.ErrInvalidName:
+			case segment.ErrInvalidSegment:
 				c.JSON(http.StatusBadRequest, responses.Error(err))
 				return
 			default:

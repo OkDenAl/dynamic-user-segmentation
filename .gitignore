@@ -4,3 +4,5 @@ internal/mocks/
 *.log
 .env
 *.out
+config/credentials.json
+token.json
