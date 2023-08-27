@@ -8,6 +8,8 @@ import (
 	"errors"
 )
 
+//go:generate go run github.com/vektra/mockery/v2@v2.20.2 --name=Service --output=../../mocks/service/segmentserv_mocks --outpkg=segmentserv_mocks
+
 var (
 	ErrInvalidName        = errors.New("invalid segment name")
 	ErrInvalidPercentData = errors.New("invalid percent data")

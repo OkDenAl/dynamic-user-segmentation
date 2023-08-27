@@ -10,6 +10,8 @@ import (
 	"github.com/jackc/pgx/v5"
 )
 
+//go:generate go run github.com/vektra/mockery/v2@v2.20.2 --name=Repository --output=../../mocks/repo/usersegmentrepo --outpkg=usersegmentrepo_mocks
+
 type Repository interface {
 	CreateMultSegsForOneUser(ctx context.Context, userId int64, segments []string, ttl entity.TTL) error
 	CreateOneSegForMultUsers(ctx context.Context, userIds []int64, segment string) error

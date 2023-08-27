@@ -8,6 +8,8 @@ import (
 	"fmt"
 )
 
+//go:generate go run github.com/vektra/mockery/v2@v2.20.2 --name=Repository --output=../../mocks/repo/segmentrepo --outpkg=segmentrepo_mocks
+
 type Repository interface {
 	Create(ctx context.Context, name string) error
 	Delete(ctx context.Context, name string) error

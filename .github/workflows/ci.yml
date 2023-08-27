@@ -22,6 +22,7 @@ jobs:
         working-directory: ${{ matrix.work_dir }}
         run: |
           go mod tidy
+          make mockgen
           go build -v ./...
 
       - name: Lint

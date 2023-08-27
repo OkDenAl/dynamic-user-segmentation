@@ -19,6 +19,8 @@ func CreateSegment(segmentService segment.Service) gin.HandlerFunc {
 		err = segmentService.CreateSegment(c, req.Name, req.PercentOfUsers)
 		if err != nil {
 			switch err {
+			case segment.ErrInvalidPercentData:
+				fallthrough
 			case segment.ErrInvalidName:
 				fallthrough
 			case repository.ErrAlreadyExists:

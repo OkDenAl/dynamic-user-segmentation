@@ -8,6 +8,8 @@ import (
 	"strings"
 )
 
+//go:generate go run github.com/vektra/mockery/v2@v2.20.2 --name=Service --output=../../mocks/service/usersegmentserv --outpkg=usersegmentserv_mocks
+
 var (
 	ErrInvalidUserId = errors.New("invalid user id")
 )

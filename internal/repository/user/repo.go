@@ -9,6 +9,8 @@ import (
 	"math"
 )
 
+//go:generate go run github.com/vektra/mockery/v2@v2.20.2 --name=Repository --output=../../mocks/repo/userrepo --outpkg=userrepo_mocks
+
 type Repository interface {
 	GetNPercentOfUsersIDs(ctx context.Context, percent float64) ([]int64, error)
 }

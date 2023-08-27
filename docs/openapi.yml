@@ -53,7 +53,7 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
 
   /api/v1/segment/delete:
-    post:
+    delete:
       summary: Deletes the segment by its name
       requestBody:
         required: true
