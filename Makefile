@@ -1,4 +1,4 @@
-.PHONY: start stop cover
+.PHONY: start stop cover lint
 
 start:
 	docker compose up -d --build
@@ -8,5 +8,11 @@ stop:
 
 cover:
 	go test -v -coverpkg=./... -coverprofile report.out -covermode=atomic ./...
-	grep -v -E -- '*mocks|vector_tile|config|cmd|repository|logging'  report.out > report1.out
+	grep -v -E -- 'config|cmd|logging'  report.out > report1.out
 	go tool cover -func=report1.out
+
+lint:
+	golangci-lint run
+	
+test:
+	go test -v ./...

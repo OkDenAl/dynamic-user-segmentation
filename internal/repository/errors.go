@@ -12,15 +12,14 @@ var (
 )
 
 func SqlErrorWrapper(err error) error {
-	if pgError := err.(*pgconn.PgError); errors.Is(err, pgError) {
-		switch pgError.Code {
+	var pgErr *pgconn.PgError
+	if errors.As(err, &pgErr) {
+		switch pgErr.Code {
 		case "23505":
 			return ErrAlreadyExists
 		case "23503":
 			return ErrUnknownData
-		default:
-			return ErrUnknown
 		}
 	}
-	return err
+	return ErrUnknown
 }

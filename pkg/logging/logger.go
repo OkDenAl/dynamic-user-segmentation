@@ -25,6 +25,11 @@ func New(config json.RawMessage) (Logger, error) {
 	return l, nil
 }
 
+func NewForMocks() Logger {
+	l, _ := zap.NewProduction()
+	return l.Sugar()
+}
+
 type logger struct {
 	*zap.SugaredLogger
 }

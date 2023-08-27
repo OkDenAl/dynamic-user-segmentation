@@ -8,7 +8,6 @@ import (
 	"dynamic-user-segmentation/pkg/postgres"
 	"fmt"
 	"github.com/jackc/pgx/v5"
-	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type Repository interface {
@@ -23,7 +22,7 @@ type repo struct {
 	l    logging.Logger
 }
 
-func New(conn *pgxpool.Pool, l logging.Logger) Repository {
+func New(conn postgres.PgxPool, l logging.Logger) Repository {
 	return &repo{conn: conn, l: l}
 }
 
