@@ -2,13 +2,13 @@ package segment
 
 import (
 	"dynamic-user-segmentation/internal/ports/httpgin/responses"
-	"dynamic-user-segmentation/internal/repository"
-	"dynamic-user-segmentation/internal/service/segment"
+	"dynamic-user-segmentation/internal/repository/dberrors"
+	"dynamic-user-segmentation/internal/service"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
 
-func createSegment(segmentService segment.Service) gin.HandlerFunc {
+func createSegment(segmentService service.SegmentService) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		req := segmentCreatingRequest{}
 		err := c.BindJSON(&req)
@@ -19,11 +19,11 @@ func createSegment(segmentService segment.Service) gin.HandlerFunc {
 		err = segmentService.CreateSegment(c, req.Name, req.PercentOfUsers)
 		if err != nil {
 			switch err {
-			case segment.ErrInvalidPercentData:
+			case service.ErrInvalidPercentData:
 				fallthrough
-			case segment.ErrInvalidSegment:
+			case service.ErrInvalidSegment:
 				fallthrough
-			case repository.ErrAlreadyExists:
+			case dberrors.ErrAlreadyExists:
 				c.JSON(http.StatusBadRequest, responses.Error(err))
 				return
 			default:
@@ -35,7 +35,7 @@ func createSegment(segmentService segment.Service) gin.HandlerFunc {
 	}
 }
 
-func deleteSegment(segmentService segment.Service) gin.HandlerFunc {
+func deleteSegment(segmentService service.SegmentService) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		req := segmentDeletingRequest{}
 		err := c.BindJSON(&req)
@@ -46,7 +46,7 @@ func deleteSegment(segmentService segment.Service) gin.HandlerFunc {
 		err = segmentService.DeleteSegment(c, req.Name)
 		if err != nil {
 			switch err {
-			case segment.ErrInvalidSegment:
+			case service.ErrInvalidSegment:
 				c.JSON(http.StatusBadRequest, responses.Error(err))
 				return
 			default:

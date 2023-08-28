@@ -2,12 +2,12 @@ package operation
 
 import (
 	"dynamic-user-segmentation/internal/ports/httpgin/responses"
-	"dynamic-user-segmentation/internal/service/operation"
+	"dynamic-user-segmentation/internal/service"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
 
-func getReportLink(operationsService operation.Service) gin.HandlerFunc {
+func getReportLink(operationsService service.OperationService) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		req := reportFileLinkRequest{}
 		err := c.BindJSON(&req)

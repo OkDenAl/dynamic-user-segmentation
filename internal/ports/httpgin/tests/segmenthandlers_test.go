@@ -1,10 +1,11 @@
-package httpgin
+package tests
 
 import (
 	"bytes"
 	"dynamic-user-segmentation/internal/mocks/service/segmentserv_mocks"
-	"dynamic-user-segmentation/internal/repository"
-	"dynamic-user-segmentation/internal/service/segment"
+	"dynamic-user-segmentation/internal/ports/httpgin"
+	"dynamic-user-segmentation/internal/repository/dberrors"
+	"dynamic-user-segmentation/internal/service"
 	"dynamic-user-segmentation/pkg/logging"
 	"encoding/json"
 	"errors"
@@ -34,7 +35,12 @@ type SegmentApiTestSuite struct {
 
 func (suite *SegmentApiTestSuite) SetupTest() {
 	suite.segmentService = &segmentserv_mocks.Service{}
-	server := NewServer(":18080", suite.segmentService, nil, nil, logging.NewForMocks())
+	services := &service.Services{
+		OperationService:   nil,
+		SegmentService:     suite.segmentService,
+		UserSegmentService: nil,
+	}
+	server := httpgin.NewServer(":18080", services, logging.NewForMocks())
 	testServer := httptest.NewServer(server.Handler)
 	suite.client = testServer.Client()
 	suite.baseURL = testServer.URL
@@ -58,15 +64,15 @@ func (suite *SegmentApiTestSuite) TestCreateSegment_OK() {
 }
 
 func (suite *SegmentApiTestSuite) TestCreateSegment_ErrAlreadyExists() {
-	errCreateSuite(suite, repository.ErrAlreadyExists, http.StatusBadRequest)
+	errCreateSuite(suite, dberrors.ErrAlreadyExists, http.StatusBadRequest)
 }
 
 func (suite *SegmentApiTestSuite) TestCreateSegment_ErrInvalidName() {
-	errCreateSuite(suite, segment.ErrInvalidSegment, http.StatusBadRequest)
+	errCreateSuite(suite, service.ErrInvalidSegment, http.StatusBadRequest)
 }
 
 func (suite *SegmentApiTestSuite) TestCreateSegment_ErrInvalidPercentData() {
-	errCreateSuite(suite, segment.ErrInvalidPercentData, http.StatusBadRequest)
+	errCreateSuite(suite, service.ErrInvalidPercentData, http.StatusBadRequest)
 }
 func (suite *SegmentApiTestSuite) TestCreateSegment_UnexpectedError() {
 	errCreateSuite(suite, errors.New("some error"), http.StatusInternalServerError)
@@ -89,7 +95,7 @@ func (suite *SegmentApiTestSuite) TestDeleteSegment_OK() {
 }
 
 func (suite *SegmentApiTestSuite) TestDeleteSegment_ErrInvalidName() {
-	errDeleteSuite(suite, segment.ErrInvalidSegment, http.StatusBadRequest)
+	errDeleteSuite(suite, service.ErrInvalidSegment, http.StatusBadRequest)
 }
 
 func (suite *SegmentApiTestSuite) TestDeleteSegment_UnexpectedError() {

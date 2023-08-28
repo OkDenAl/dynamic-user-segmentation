@@ -7,6 +7,6 @@ RUN go mod download
 
 COPY . .
 
-RUN go build -buildvcs=false -o service ./cmd/app/
+RUN go build -buildvcs=false -o segmentService ./cmd/app/
 
-CMD ["./service"]
+CMD ["./segmentService"]

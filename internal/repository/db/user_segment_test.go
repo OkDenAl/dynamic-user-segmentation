@@ -1,4 +1,4 @@
-package user_segment
+package db
 
 import (
 	"context"
@@ -62,7 +62,7 @@ func TestRepository_GetAllUserSegments(t *testing.T) {
 			poolMock, _ := pgxmock.NewPool()
 			defer poolMock.Close()
 			tc.mockBehavior(poolMock, tc.args)
-			segmentRepoMock := New(poolMock, logging.NewForMocks())
+			segmentRepoMock := NewUserSegment(poolMock, logging.NewForMocks())
 			got, err := segmentRepoMock.GetAllUserSegments(tc.args.ctx, tc.args.userId)
 			if tc.wantErr {
 				assert.Error(t, err)

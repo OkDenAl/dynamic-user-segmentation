@@ -1,4 +1,4 @@
-package operation
+package db
 
 import (
 	"context"
@@ -54,7 +54,7 @@ func TestRepository_GetAllOperationsSortedByUserId(t *testing.T) {
 			poolMock, _ := pgxmock.NewPool()
 			defer poolMock.Close()
 			tc.mockBehavior(poolMock, tc.args)
-			operationRepoMock := New(poolMock, logging.NewForMocks())
+			operationRepoMock := NewSegmentRepo(poolMock, logging.NewForMocks())
 			got, err := operationRepoMock.GetAllOperationsSortedByUserId(tc.args.ctx, tc.args.month, tc.args.year)
 			if tc.wantErr {
 				assert.Error(t, err)

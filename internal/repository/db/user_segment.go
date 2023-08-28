@@ -1,9 +1,9 @@
-package user_segment
+package db
 
 import (
 	"context"
 	"dynamic-user-segmentation/internal/entity"
-	"dynamic-user-segmentation/internal/repository"
+	"dynamic-user-segmentation/internal/repository/dberrors"
 	"dynamic-user-segmentation/pkg/logging"
 	"dynamic-user-segmentation/pkg/postgres"
 	"fmt"
@@ -11,25 +11,25 @@ import (
 	"time"
 )
 
-//go:generate go run github.com/vektra/mockery/v2@v2.20.2 --name=Repository --output=../../mocks/repo/usersegmentrepo --outpkg=usersegmentrepo_mocks
+//go:generate go run github.com/vektra/mockery/v2@v2.20.2 --name=UserSegmentRepository --output=../../mocks/repo/usersegmentrepo --outpkg=usersegmentrepo_mocks
 
-type Repository interface {
+type UserSegmentRepository interface {
 	CreateMultSegsForOneUser(ctx context.Context, userId int64, segments []entity.Segment, ttl entity.TTL) error
 	CreateOneSegForMultUsers(ctx context.Context, userIds []int64, segment entity.Segment) error
 	DeleteSegmentsFromSpecUser(ctx context.Context, userId int64, segments []entity.Segment) error
 	GetAllUserSegments(ctx context.Context, userId int64) ([]entity.Segment, error)
 }
 
-type repo struct {
+type userSegmentRepo struct {
 	conn postgres.PgxPool
 	l    logging.Logger
 }
 
-func New(conn postgres.PgxPool, l logging.Logger) Repository {
-	return &repo{conn: conn, l: l}
+func NewUserSegment(conn postgres.PgxPool, l logging.Logger) UserSegmentRepository {
+	return &userSegmentRepo{conn: conn, l: l}
 }
 
-func (r *repo) CreateMultSegsForOneUser(ctx context.Context, userId int64, segments []entity.Segment, ttl entity.TTL) error {
+func (r *userSegmentRepo) CreateMultSegsForOneUser(ctx context.Context, userId int64, segments []entity.Segment, ttl entity.TTL) error {
 	var (
 		insertUsersSegmentBatch = &pgx.Batch{}
 		insertUsersSegmentQ     string
@@ -46,7 +46,7 @@ func (r *repo) CreateMultSegsForOneUser(ctx context.Context, userId int64, segme
 	tx, err := r.conn.Begin(ctx)
 	if err != nil {
 		r.l.Error(fmt.Errorf("user_segment.CreateMultSegsForOneUser - r.conn.Begin - %w", err))
-		return repository.SqlErrorWrapper(err)
+		return dberrors.SqlErrorWrapper(err)
 	}
 	defer func() { _ = tx.Rollback(ctx) }()
 
@@ -57,24 +57,24 @@ func (r *repo) CreateMultSegsForOneUser(ctx context.Context, userId int64, segme
 	err = tx.SendBatch(ctx, insertUsersSegmentBatch).Close()
 	if err != nil {
 		r.l.Error(fmt.Errorf("user_segment.CreateMultSegsForOneUser - r.conn.SendBatch.Close - insertUsersSegmentBatch - %w", err))
-		return repository.SqlErrorWrapper(err)
+		return dberrors.SqlErrorWrapper(err)
 	}
 	err = tx.SendBatch(ctx, insertOperationBatch).Close()
 	if err != nil {
 		r.l.Error(fmt.Errorf("user_segment.CreateMultSegsForOneUser - r.conn.SendBatch.Close - insertOperationBatch - %w", err))
-		return repository.SqlErrorWrapper(err)
+		return dberrors.SqlErrorWrapper(err)
 	}
 
 	err = tx.Commit(ctx)
 	if err != nil {
 		r.l.Error(fmt.Errorf("user_segment.CreateMultSegsForOneUser - tx.Commit - %w", err))
-		return repository.SqlErrorWrapper(err)
+		return dberrors.SqlErrorWrapper(err)
 	}
 
 	return nil
 }
 
-func (r *repo) CreateOneSegForMultUsers(ctx context.Context, userIds []int64, segment entity.Segment) error {
+func (r *userSegmentRepo) CreateOneSegForMultUsers(ctx context.Context, userIds []int64, segment entity.Segment) error {
 	var (
 		insertUsersSegmentBatch = &pgx.Batch{}
 		insertUsersSegmentQ     = `INSERT INTO users_segments (user_id,segment_name) VALUES ($1,$2)`
@@ -84,7 +84,7 @@ func (r *repo) CreateOneSegForMultUsers(ctx context.Context, userIds []int64, se
 	tx, err := r.conn.Begin(ctx)
 	if err != nil {
 		r.l.Error(fmt.Errorf("user_segment.CreateOneSegForMultUsers - r.conn.Begin - %w", err))
-		return repository.SqlErrorWrapper(err)
+		return dberrors.SqlErrorWrapper(err)
 	}
 	defer func() { _ = tx.Rollback(ctx) }()
 
@@ -95,24 +95,24 @@ func (r *repo) CreateOneSegForMultUsers(ctx context.Context, userIds []int64, se
 	err = tx.SendBatch(ctx, insertUsersSegmentBatch).Close()
 	if err != nil {
 		r.l.Error(fmt.Errorf("user_segment.CreateOneSegForMultUsers - r.conn.SendBatch.Close - insertUsersSegmentBatch  - %w", err))
-		return repository.SqlErrorWrapper(err)
+		return dberrors.SqlErrorWrapper(err)
 	}
 	err = tx.SendBatch(ctx, insertOperationBatch).Close()
 	if err != nil {
 		r.l.Error(fmt.Errorf("user_segment.CreateOneSegForMultUsers - r.conn.SendBatch.Close - insertOperationBatch - %w", err))
-		return repository.SqlErrorWrapper(err)
+		return dberrors.SqlErrorWrapper(err)
 	}
 
 	err = tx.Commit(ctx)
 	if err != nil {
 		r.l.Error(fmt.Errorf("user_segment.CreateOneSegForMultUsers - tx.Commit - %w", err))
-		return repository.SqlErrorWrapper(err)
+		return dberrors.SqlErrorWrapper(err)
 	}
 
 	return nil
 }
 
-func (r *repo) DeleteSegmentsFromSpecUser(ctx context.Context, userId int64, segments []entity.Segment) error {
+func (r *userSegmentRepo) DeleteSegmentsFromSpecUser(ctx context.Context, userId int64, segments []entity.Segment) error {
 	var (
 		deleteBatch          = &pgx.Batch{}
 		deleteQ              = `DELETE FROM users_segments WHERE user_id=$1 AND segment_name=$2`
@@ -122,7 +122,7 @@ func (r *repo) DeleteSegmentsFromSpecUser(ctx context.Context, userId int64, seg
 	tx, err := r.conn.Begin(ctx)
 	if err != nil {
 		r.l.Error(fmt.Errorf("user_segment.DeleteSegmentsFromSpecUser - r.conn.Begin - %w", err))
-		return repository.SqlErrorWrapper(err)
+		return dberrors.SqlErrorWrapper(err)
 	}
 	defer func() { _ = tx.Rollback(ctx) }()
 
@@ -133,29 +133,29 @@ func (r *repo) DeleteSegmentsFromSpecUser(ctx context.Context, userId int64, seg
 	err = tx.SendBatch(ctx, deleteBatch).Close()
 	if err != nil {
 		r.l.Error(fmt.Errorf("user_segment.DeleteSegmentsFromSpecUser - r.conn.SendBatch.Close - deleteBatch - %w", err))
-		return repository.SqlErrorWrapper(err)
+		return dberrors.SqlErrorWrapper(err)
 	}
 	err = tx.SendBatch(ctx, insertOperationBatch).Close()
 	if err != nil {
 		r.l.Error(fmt.Errorf("user_segment.DeleteSegmentsFromSpecUser - r.conn.SendBatch.Close - insertOperationBatch - %w", err))
-		return repository.SqlErrorWrapper(err)
+		return dberrors.SqlErrorWrapper(err)
 	}
 
 	err = tx.Commit(ctx)
 	if err != nil {
 		r.l.Error(fmt.Errorf("user_segment.DeleteSegmentsFromSpecUser - tx.Commit - %w", err))
-		return repository.SqlErrorWrapper(err)
+		return dberrors.SqlErrorWrapper(err)
 	}
 
 	return nil
 }
 
-func (r *repo) GetAllUserSegments(ctx context.Context, userId int64) ([]entity.Segment, error) {
+func (r *userSegmentRepo) GetAllUserSegments(ctx context.Context, userId int64) ([]entity.Segment, error) {
 	q := `SELECT segment_name FROM users_segments WHERE user_id=$1 AND(expires_at > now() OR expires_at IS NULL)`
 	rows, err := r.conn.Query(ctx, q, userId)
 	if err != nil {
 		r.l.Error(fmt.Errorf("user_segment.GetAllUserSegments - r.conn.Query - %w", err))
-		return nil, repository.SqlErrorWrapper(err)
+		return nil, dberrors.SqlErrorWrapper(err)
 	}
 	defer rows.Close()
 	usersSegments := make([]entity.Segment, 0)
@@ -164,7 +164,7 @@ func (r *repo) GetAllUserSegments(ctx context.Context, userId int64) ([]entity.S
 		err = rows.Scan(&curSegment.Name)
 		if err != nil {
 			r.l.Error(fmt.Errorf("user_segment.GetAllUserSegments - rows.Scan - %w", err))
-			return nil, repository.SqlErrorWrapper(err)
+			return nil, dberrors.SqlErrorWrapper(err)
 		}
 		usersSegments = append(usersSegments, curSegment)
 	}

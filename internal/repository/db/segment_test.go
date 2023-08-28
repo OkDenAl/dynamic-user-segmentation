@@ -1,4 +1,4 @@
-package segment
+package db
 
 import (
 	"context"
@@ -51,7 +51,7 @@ func TestRepository_Create(t *testing.T) {
 			poolMock, _ := pgxmock.NewPool()
 			defer poolMock.Close()
 			tc.mockBehavior(poolMock, tc.args)
-			segmentRepoMock := New(poolMock, logging.NewForMocks())
+			segmentRepoMock := NewSegmentRepo(poolMock, logging.NewForMocks())
 			err := segmentRepoMock.Create(tc.args.ctx, tc.args.segment)
 			if tc.wantErr {
 				assert.Error(t, err)
@@ -88,7 +88,7 @@ func TestRepository_Delete(t *testing.T) {
 			poolMock, _ := pgxmock.NewPool()
 			defer poolMock.Close()
 			tc.mockBehavior(poolMock, tc.args)
-			segmentRepoMock := New(poolMock, logging.NewForMocks())
+			segmentRepoMock := NewSegmentRepo(poolMock, logging.NewForMocks())
 			err := segmentRepoMock.Delete(tc.args.ctx, tc.args.segment)
 			if tc.wantErr {
 				assert.Error(t, err)

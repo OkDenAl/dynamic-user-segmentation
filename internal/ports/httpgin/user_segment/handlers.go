@@ -2,14 +2,14 @@ package user_segment
 
 import (
 	"dynamic-user-segmentation/internal/ports/httpgin/responses"
-	"dynamic-user-segmentation/internal/repository"
-	"dynamic-user-segmentation/internal/service/user_segment"
+	"dynamic-user-segmentation/internal/repository/dberrors"
+	"dynamic-user-segmentation/internal/service"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
 )
 
-func makeOperationWithUsersSegment(userSegmentService user_segment.Service) gin.HandlerFunc {
+func makeOperationWithUsersSegment(userSegmentService service.UserSegmentService) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		req := userSegmentOperationRequest{}
 		err := c.BindJSON(&req)
@@ -21,11 +21,11 @@ func makeOperationWithUsersSegment(userSegmentService user_segment.Service) gin.
 		err = userSegmentService.AddSegmentsToUser(c, req.UserId, req.SegmentsToAdd, req.ExpiresAt)
 		if err != nil {
 			switch err {
-			case repository.ErrAlreadyExists:
+			case dberrors.ErrAlreadyExists:
 				fallthrough
-			case repository.ErrUnknownData:
+			case dberrors.ErrUnknownData:
 				fallthrough
-			case user_segment.ErrInvalidUserId:
+			case service.ErrInvalidUserId:
 				c.JSON(http.StatusBadRequest, responses.Error(err))
 				return
 			default:
@@ -43,13 +43,13 @@ func makeOperationWithUsersSegment(userSegmentService user_segment.Service) gin.
 	}
 }
 
-func getAllSegmentsOfUser(userSegmentService user_segment.Service) gin.HandlerFunc {
+func getAllSegmentsOfUser(userSegmentService service.UserSegmentService) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		userId, _ := strconv.Atoi(c.Param("user_id"))
 		segments, err := userSegmentService.GetAllUserSegments(c, int64(userId))
 		if err != nil {
 			switch err {
-			case user_segment.ErrInvalidUserId:
+			case service.ErrInvalidUserId:
 				c.JSON(http.StatusBadRequest, responses.Error(err))
 				return
 			default:

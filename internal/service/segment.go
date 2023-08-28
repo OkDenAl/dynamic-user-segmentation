@@ -1,37 +1,35 @@
-package segment
+package service
 
 import (
 	"context"
 	"dynamic-user-segmentation/internal/entity"
-	segRepo "dynamic-user-segmentation/internal/repository/segment"
-	"dynamic-user-segmentation/internal/repository/user"
-	"dynamic-user-segmentation/internal/repository/user_segment"
+	segRepo "dynamic-user-segmentation/internal/repository/db"
 	"errors"
 )
 
-//go:generate go run github.com/vektra/mockery/v2@v2.20.2 --name=Service --output=../../mocks/service/segmentserv_mocks --outpkg=segmentserv_mocks
+//go:generate go run github.com/vektra/mockery/v2@v2.20.2 --name=SegmentService --output=../../mocks/service/segmentserv_mocks --outpkg=segmentserv_mocks
 
 var (
 	ErrInvalidSegment     = errors.New("invalid segment name")
 	ErrInvalidPercentData = errors.New("invalid percent data")
 )
 
-type Service interface {
+type SegmentService interface {
 	CreateSegment(ctx context.Context, name string, percentOfUsers float64) error
 	DeleteSegment(ctx context.Context, name string) error
 }
 
-type service struct {
-	segRepo     segRepo.Repository
-	userRepo    user.Repository
-	userSegRepo user_segment.Repository
+type segmentService struct {
+	segRepo     segRepo.SegmentRepository
+	userRepo    segRepo.UserRepository
+	userSegRepo segRepo.UserSegmentRepository
 }
 
-func New(segRepo segRepo.Repository, userRepo user.Repository, userSegRepo user_segment.Repository) Service {
-	return &service{segRepo: segRepo, userRepo: userRepo, userSegRepo: userSegRepo}
+func NewSegmentService(segRepo segRepo.SegmentRepository, userRepo segRepo.UserRepository, userSegRepo segRepo.UserSegmentRepository) SegmentService {
+	return &segmentService{segRepo: segRepo, userRepo: userRepo, userSegRepo: userSegRepo}
 }
 
-func (s *service) CreateSegment(ctx context.Context, name string, percentOfUsers float64) error {
+func (s *segmentService) CreateSegment(ctx context.Context, name string, percentOfUsers float64) error {
 	segment := entity.Segment{Name: name}
 	if !segment.IsValid() {
 		return ErrInvalidSegment
@@ -56,7 +54,7 @@ func (s *service) CreateSegment(ctx context.Context, name string, percentOfUsers
 	return nil
 }
 
-func (s *service) DeleteSegment(ctx context.Context, name string) error {
+func (s *segmentService) DeleteSegment(ctx context.Context, name string) error {
 	segment := entity.Segment{Name: name}
 	if !segment.IsValid() {
 		return ErrInvalidSegment

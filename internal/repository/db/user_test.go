@@ -1,4 +1,4 @@
-package user
+package db
 
 import (
 	"context"
@@ -71,7 +71,7 @@ func TestRepository_GetAllUserSegments(t *testing.T) {
 			poolMock, _ := pgxmock.NewPool()
 			defer poolMock.Close()
 			tc.mockBehavior(poolMock, tc.args)
-			segmentRepoMock := New(poolMock, logging.NewForMocks())
+			segmentRepoMock := NewUserRepo(poolMock, logging.NewForMocks())
 			got, err := segmentRepoMock.GetNPercentOfUsersIDs(tc.args.ctx, tc.args.percent)
 			if tc.wantErr {
 				assert.Error(t, err)

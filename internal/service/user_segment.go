@@ -1,35 +1,34 @@
-package user_segment
+package service
 
 import (
 	"context"
 	"dynamic-user-segmentation/internal/entity"
-	"dynamic-user-segmentation/internal/repository/user_segment"
-	"dynamic-user-segmentation/internal/service/segment"
+	"dynamic-user-segmentation/internal/repository/db"
 	"errors"
 	"strings"
 )
 
-//go:generate go run github.com/vektra/mockery/v2@v2.20.2 --name=Service --output=../../mocks/service/usersegmentserv --outpkg=usersegmentserv_mocks
+//go:generate go run github.com/vektra/mockery/v2@v2.20.2 --name=UserSegmentService --output=../../mocks/service/usersegmentserv --outpkg=usersegmentserv_mocks
 
 var (
 	ErrInvalidUserId = errors.New("invalid user id")
 )
 
-type Service interface {
+type UserSegmentService interface {
 	AddSegmentsToUser(ctx context.Context, userId int64, segments string, ttl entity.TTL) error
 	DeleteSegmentsFromUser(ctx context.Context, userId int64, segments string) error
 	GetAllUserSegments(ctx context.Context, userId int64) ([]entity.Segment, error)
 }
 
-type service struct {
-	repo user_segment.Repository
+type userSegmentService struct {
+	repo db.UserSegmentRepository
 }
 
-func New(repo user_segment.Repository) Service {
-	return &service{repo: repo}
+func NewUserSegmentService(repo db.UserSegmentRepository) UserSegmentService {
+	return &userSegmentService{repo: repo}
 }
 
-func (s *service) AddSegmentsToUser(ctx context.Context, userId int64, segments string, ttl entity.TTL) error {
+func (s *userSegmentService) AddSegmentsToUser(ctx context.Context, userId int64, segments string, ttl entity.TTL) error {
 	if userId < 0 {
 		return ErrInvalidUserId
 	}
@@ -41,13 +40,13 @@ func (s *service) AddSegmentsToUser(ctx context.Context, userId int64, segments 
 	for i, segName := range splitted {
 		segmentsArr[i] = entity.Segment{Name: segName}
 		if !segmentsArr[i].IsValid() {
-			return segment.ErrInvalidSegment
+			return ErrInvalidSegment
 		}
 	}
 	return s.repo.CreateMultSegsForOneUser(ctx, userId, segmentsArr, ttl)
 }
 
-func (s *service) DeleteSegmentsFromUser(ctx context.Context, userId int64, segments string) error {
+func (s *userSegmentService) DeleteSegmentsFromUser(ctx context.Context, userId int64, segments string) error {
 	if userId < 0 {
 		return ErrInvalidUserId
 	}
@@ -59,13 +58,13 @@ func (s *service) DeleteSegmentsFromUser(ctx context.Context, userId int64, segm
 	for i, segName := range splitted {
 		segmentsArr[i] = entity.Segment{Name: segName}
 		if !segmentsArr[i].IsValid() {
-			return segment.ErrInvalidSegment
+			return ErrInvalidSegment
 		}
 	}
 	return s.repo.DeleteSegmentsFromSpecUser(ctx, userId, segmentsArr)
 }
 
-func (s *service) GetAllUserSegments(ctx context.Context, userId int64) ([]entity.Segment, error) {
+func (s *userSegmentService) GetAllUserSegments(ctx context.Context, userId int64) ([]entity.Segment, error) {
 	if userId < 0 {
 		return nil, ErrInvalidUserId
 	}
