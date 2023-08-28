@@ -38,7 +38,7 @@ func TestRepository_GetAllOperationsSortedByUserId(t *testing.T) {
 					WithArgs(args.month, args.year).
 					WillReturnRows(rows)
 			}, wantRes: []entity.Operation{{UserId: int64(1), SegmentName: "test", Type: entity.AddOperation, CreatedAt: testTime},
-				{UserId: int64(1), SegmentName: "avito", Type: entity.DelOperation, CreatedAt: testTime}}, wantErr: false,
+			{UserId: int64(1), SegmentName: "avito", Type: entity.DelOperation, CreatedAt: testTime}}, wantErr: false,
 		},
 		{
 			name: "Unexpected error", args: args{ctx: context.Background(), month: 8, year: 2023},
@@ -54,7 +54,7 @@ func TestRepository_GetAllOperationsSortedByUserId(t *testing.T) {
 			poolMock, _ := pgxmock.NewPool()
 			defer poolMock.Close()
 			tc.mockBehavior(poolMock, tc.args)
-			operationRepoMock := NewSegmentRepo(poolMock, logging.NewForMocks())
+			operationRepoMock := NewOperationRepo(poolMock, logging.NewForMocks())
 			got, err := operationRepoMock.GetAllOperationsSortedByUserId(tc.args.ctx, tc.args.month, tc.args.year)
 			if tc.wantErr {
 				assert.Error(t, err)

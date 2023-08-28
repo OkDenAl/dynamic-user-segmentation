@@ -62,8 +62,8 @@ func TestRepository_GetAllUserSegments(t *testing.T) {
 			poolMock, _ := pgxmock.NewPool()
 			defer poolMock.Close()
 			tc.mockBehavior(poolMock, tc.args)
-			segmentRepoMock := NewUserSegment(poolMock, logging.NewForMocks())
-			got, err := segmentRepoMock.GetAllUserSegments(tc.args.ctx, tc.args.userId)
+			userSegmentRepoMock := NewUserSegment(poolMock, logging.NewForMocks())
+			got, err := userSegmentRepoMock.GetAllUserSegments(tc.args.ctx, tc.args.userId)
 			if tc.wantErr {
 				assert.Error(t, err)
 				return

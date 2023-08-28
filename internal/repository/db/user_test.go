@@ -10,7 +10,7 @@ import (
 	"testing"
 )
 
-func TestRepository_GetAllUserSegments(t *testing.T) {
+func TestRepository_GetNPercentOfUsersIDs(t *testing.T) {
 	type args struct {
 		ctx          context.Context
 		percent      float64
@@ -71,8 +71,8 @@ func TestRepository_GetAllUserSegments(t *testing.T) {
 			poolMock, _ := pgxmock.NewPool()
 			defer poolMock.Close()
 			tc.mockBehavior(poolMock, tc.args)
-			segmentRepoMock := NewUserRepo(poolMock, logging.NewForMocks())
-			got, err := segmentRepoMock.GetNPercentOfUsersIDs(tc.args.ctx, tc.args.percent)
+			userRepoMock := NewUserRepo(poolMock, logging.NewForMocks())
+			got, err := userRepoMock.GetNPercentOfUsersIDs(tc.args.ctx, tc.args.percent)
 			if tc.wantErr {
 				assert.Error(t, err)
 				return
