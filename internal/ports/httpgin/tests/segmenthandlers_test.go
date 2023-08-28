@@ -28,13 +28,13 @@ type errorResponse struct {
 
 type SegmentApiTestSuite struct {
 	suite.Suite
-	segmentService *segmentserv_mocks.Service
+	segmentService *segmentserv_mocks.SegmentService
 	client         *http.Client
 	baseURL        string
 }
 
 func (suite *SegmentApiTestSuite) SetupTest() {
-	suite.segmentService = &segmentserv_mocks.Service{}
+	suite.segmentService = &segmentserv_mocks.SegmentService{}
 	services := &service.Services{
 		OperationService:   nil,
 		SegmentService:     suite.segmentService,

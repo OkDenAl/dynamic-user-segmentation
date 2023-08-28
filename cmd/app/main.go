@@ -6,6 +6,7 @@ import (
 	"dynamic-user-segmentation/internal/ports/httpgin"
 	"dynamic-user-segmentation/internal/repository"
 	"dynamic-user-segmentation/internal/service"
+	"dynamic-user-segmentation/internal/webapi/gdrive"
 	"dynamic-user-segmentation/pkg/logging"
 	"dynamic-user-segmentation/pkg/postgres"
 	"errors"
@@ -42,7 +43,11 @@ func main() {
 	log.Info("successfully configured")
 
 	log.Info("configure services...")
-	services := service.NewServices(repos)
+	gDrive, err := gdrive.New(cfg.GDriveCredentialsPath)
+	if err != nil {
+		log.Fatal(fmt.Errorf("unable to connect to google drive: %w", err))
+	}
+	services := service.NewServices(repos, gDrive)
 	log.Info("successfully configured")
 
 	log.Info("configure server...")

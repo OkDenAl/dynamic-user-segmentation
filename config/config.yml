@@ -3,3 +3,5 @@ db:
 
 server:
   port: 8080
+
+g_drive_credentials_path: ./config/credentials.json

@@ -38,7 +38,7 @@ func TestRepository_GetAllOperationsSortedByUserId(t *testing.T) {
 					WithArgs(args.month, args.year).
 					WillReturnRows(rows)
 			}, wantRes: []entity.Operation{{UserId: int64(1), SegmentName: "test", Type: entity.AddOperation, CreatedAt: testTime},
-			{UserId: int64(1), SegmentName: "avito", Type: entity.DelOperation, CreatedAt: testTime}}, wantErr: false,
+				{UserId: int64(1), SegmentName: "avito", Type: entity.DelOperation, CreatedAt: testTime}}, wantErr: false,
 		},
 		{
 			name: "Unexpected error", args: args{ctx: context.Background(), month: 8, year: 2023},

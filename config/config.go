@@ -9,9 +9,10 @@ import (
 
 type (
 	Config struct {
-		DB     `yaml:"db"`
-		Server `yaml:"server"`
-		Logger json.RawMessage
+		DB                    `yaml:"db"`
+		Server                `yaml:"server"`
+		GDriveCredentialsPath string `yaml:"g_drive_credentials_path"`
+		Logger                json.RawMessage
 	}
 	DB struct {
 		DSN string `yaml:"dsn"`
