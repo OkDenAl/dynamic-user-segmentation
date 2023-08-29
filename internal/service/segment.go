@@ -7,7 +7,7 @@ import (
 	"errors"
 )
 
-//go:generate go run github.com/vektra/mockery/v2@v2.20.2 --name=SegmentService --output=../mocks/service/segmentserv_mocks --outpkg=segmentserv_mocks
+//go:generate go run github.com/vektra/mockery/v2@v2.20.2 --name=SegmentService --output=../mocks/service/segmentserv --outpkg=segmentserv_mocks
 
 var (
 	ErrInvalidSegment     = errors.New("invalid segment name")

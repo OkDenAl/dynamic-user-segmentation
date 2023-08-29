@@ -17,15 +17,6 @@ import (
 	"testing"
 )
 
-type succesResponse struct {
-	Message string `json:"message"`
-}
-
-type errorResponse struct {
-	Data  any    `json:"data"`
-	Error string `json:"error"`
-}
-
 type SegmentApiTestSuite struct {
 	suite.Suite
 	segmentService *segmentserv_mocks.SegmentService
@@ -132,6 +123,6 @@ func errDeleteSuite(suite *SegmentApiTestSuite, err error, status int) {
 	suite.Equal(response.Error, err.Error())
 }
 
-func TestAdsApi(t *testing.T) {
+func TestSegmentApi(t *testing.T) {
 	suite.Run(t, new(SegmentApiTestSuite))
 }

@@ -11,7 +11,7 @@ import (
 	"strconv"
 )
 
-//go:generate go run github.com/vektra/mockery/v2@v2.20.2 --name=OperationService --output=../mocks/service/operationserv_mocks --outpkg=operationserv_mocks
+//go:generate go run github.com/vektra/mockery/v2@v2.20.2 --name=OperationService --output=../mocks/service/operationserv --outpkg=operationserv_mocks
 
 var (
 	ErrFailedToWriteCSV = errors.New("failed to write csv")
