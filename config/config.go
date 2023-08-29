@@ -11,26 +11,26 @@ type (
 	Config struct {
 		DB                    `yaml:"db"`
 		Server                `yaml:"server"`
-		GDriveCredentialsPath string `yaml:"g_drive_credentials_path"`
+		GDriveCredentialsPath string `env-required:"true" env:"GOOGLE_DRIVE_JSON_FILE_PATH"`
 		Logger                json.RawMessage
 	}
 	DB struct {
-		DSN string `yaml:"dsn"`
+		DSN string `env-required:"true" env:"PG_DSN"`
 	}
 	Server struct {
-		Port string `yaml:"port"`
+		Port string `env-required:"true" env:"HTTP_PORT"`
 	}
 )
 
-func New() (Config, error) {
-	var cfg Config
-	err := cleanenv.ReadConfig("./config/config.yml", &cfg)
+func New() (*Config, error) {
+	cfg := &Config{}
+	err := cleanenv.ReadEnv(cfg)
 	if err != nil {
-		return Config{}, fmt.Errorf("cleanenv.ReadConfig: %w", err)
+		return nil, fmt.Errorf("error updating env - %w", err)
 	}
 	err = cfg.loadJSON("./config/logger.json")
 	if err != nil {
-		return Config{}, fmt.Errorf("cfg.loadJSON: %w", err)
+		return nil, fmt.Errorf("error load json - %w", err)
 	}
 	return cfg, nil
 }

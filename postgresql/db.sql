@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS users (
     password   varchar(255) not null
 );
 
-INSERT INTO users (username, password) VALUES ('test','password');
+INSERT INTO users (username, password) VALUES ('test','password'),('test1','password2');
 
 CREATE TABLE IF NOT EXISTS users_segments (
     user_id int not null,
@@ -32,7 +32,7 @@ CREATE TABLE IF NOT EXISTS operations (
     created_at timestamp not null default now()
 );
 
-DROP TABLE IF EXISTS segments;
-DROP TABLE IF EXISTS users;
-DROP TABLE IF EXISTS users_segments;
-DROP TABLE IF EXISTS operations;
+-- DROP TABLE IF EXISTS segments;
+-- DROP TABLE IF EXISTS users;
+-- DROP TABLE IF EXISTS users_segments;
+-- DROP TABLE IF EXISTS operations;

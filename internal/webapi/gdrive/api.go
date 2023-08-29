@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"google.golang.org/api/drive/v3"
 	"google.golang.org/api/option"
-	"log"
 )
 
 var (
@@ -91,7 +90,6 @@ func (g *gDriveApi) getFileId(ctx context.Context, name string) (string, error) 
 		return "", fmt.Errorf("gdrive.getFileId - g.service.Permissions.Create - %w", err)
 	}
 	for _, file := range fileList.Files {
-		log.Println(file.Name)
 		if file.Name == name {
 			return file.Id, nil
 		}

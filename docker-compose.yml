@@ -19,10 +19,12 @@ services:
       - pg
     container_name: server
     build: .
+    env_file:
+      - .env
     volumes:
       - ./logs:/app/logs
     ports:
-      - "8080:8080"
+      - "${HTTP_PORT}:${HTTP_PORT}"
   docs:
     image: nginx
     container_name: docs

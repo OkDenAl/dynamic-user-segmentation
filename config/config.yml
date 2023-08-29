@@ -1,7 +1,0 @@
-db:
-  dsn: postgres://raiden:raiden@pg:5432/segmentation
-
-server:
-  port: 8080
-
-g_drive_credentials_path: ./config/credentials.json
