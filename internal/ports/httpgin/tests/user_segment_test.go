@@ -3,7 +3,7 @@ package tests
 import (
 	"bytes"
 	"dynamic-user-segmentation/internal/entity"
-	usersegmentserv_mocks "dynamic-user-segmentation/internal/mocks/service/usersegmentserv"
+	"dynamic-user-segmentation/internal/mocks/service/usersegmentserv"
 	"dynamic-user-segmentation/internal/ports/httpgin"
 	"dynamic-user-segmentation/internal/repository/dberrors"
 	"dynamic-user-segmentation/internal/service"

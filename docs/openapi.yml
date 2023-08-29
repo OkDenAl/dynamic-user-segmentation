@@ -179,12 +179,7 @@ paths:
           content:
             application/json:
               schema:
-                allOf:
-                  - properties:
-                      data:
-                        type: string
-                      error:
-                        type: string
+                $ref: '#/components/schemas/LinkResponse'
         default:
           description: Internal server error
           content:
@@ -289,3 +284,9 @@ components:
         message:
           type: string
           default: "success"
+
+    LinkResponse:
+      type: object
+      properties:
+        link:
+          type: string

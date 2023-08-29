@@ -2,7 +2,7 @@ package tests
 
 import (
 	"bytes"
-	"dynamic-user-segmentation/internal/mocks/service/segmentserv_mocks"
+	"dynamic-user-segmentation/internal/mocks/service/segmentserv"
 	"dynamic-user-segmentation/internal/ports/httpgin"
 	"dynamic-user-segmentation/internal/repository/dberrors"
 	"dynamic-user-segmentation/internal/service"
