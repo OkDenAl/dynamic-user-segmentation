@@ -18,10 +18,10 @@ CREATE TABLE IF NOT EXISTS users_segments (
     foreign key (user_id) references users (id) on delete cascade ,
     foreign key (segment_name) references segments (name) on delete cascade
 );
-CREATE UNIQUE INDEX users_segment_index on users_segments (user_id, segment_name);
+CREATE UNIQUE INDEX IF NOT EXISTS users_segment_index on users_segments (user_id, segment_name);
 
-CREATE EXTENSION pg_cron;
-SELECT cron.schedule('0 0 * * *', $$DELETE FROM users_segments WHERE expires_at < now()$$);
+CREATE EXTENSION IF NOT EXISTS pg_cron;
+SELECT cron.schedule('0 0 * * *', $$DELETE FROM users_segments WHERE expires_at < now()$$) WHERE (SELECT count(*) FROM cron.job)=0;
 
 CREATE TYPE operation_type AS ENUM ('ADD','DEL');
 CREATE TABLE IF NOT EXISTS operations (
